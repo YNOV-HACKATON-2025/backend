@@ -1,4 +1,8 @@
-import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as admin from 'firebase-admin';
 
 @Injectable()
@@ -16,11 +20,14 @@ export class FirebaseAuthMiddleware implements NestMiddleware {
       const decodedToken = await admin.auth().verifyIdToken(idToken);
       console.log(decodedToken);
       req['user'] = decodedToken;
-      const userRef = admin.firestore().collection('users').doc(decodedToken.uid);
+      const userRef = admin
+        .firestore()
+        .collection('users')
+        .doc(decodedToken.uid);
       const userSnapshot = await userRef.get();
       if (userSnapshot.exists) {
         req['user'] = { ...req['user'], ...userSnapshot.data() };
-      }else{
+      } else {
         throw new UnauthorizedException('UserDoesNotExist');
       }
       next(); // Passer à la prochaine étape
