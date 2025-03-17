@@ -4,27 +4,10 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { connect, MqttClient } from 'mqtt';
 import { EventEmitter } from 'events';
-import {
-  collection,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-  getDocs,
-  getDoc,
-  query,
-  where,
-} from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { connect, MqttClient } from 'mqtt';
 import { db } from '../../main';
-
-// Define interfaces for room and sensor
-interface Room {
-  id?: string;
-  name: string;
-  topic: string;
-}
 
 interface Sensor {
   id?: string;
@@ -364,6 +347,10 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
    */
   private stopAllSimulations() {
     for (const [deviceId, interval] of this.simulationIntervals.entries()) {
+      console.log(
+        '🚀 ~ MqttService ~ stopAllSimulations ~ deviceId:',
+        deviceId,
+      );
       clearInterval(interval);
     }
     this.simulationIntervals.clear();

@@ -1,9 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import * as admin from 'firebase-admin';
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBryUOt9ITqrNB-JrRHyHKRCQNaMINg_iA',
@@ -20,9 +19,6 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000);
 }
 export const firebaseApp = initializeApp(firebaseConfig);
-admin.initializeApp({
-  credential: admin.credential.cert(firebaseConfig),
-});
 export const auth = getAuth(firebaseApp);
 export const db = getFirestore(firebaseApp);
 bootstrap();
