@@ -22,7 +22,7 @@ export class MqttController {
 
   @Sse('stream')
   streamEvents(): Observable<SseMessage> {
-    return new Observable<SseMessage>(subscriber => {
+    return new Observable<SseMessage>((subscriber) => {
       const unsubscribe = this.mqttService.onMessage((data) => {
         try {
           // Transform data to JSON string
@@ -32,16 +32,16 @@ export class MqttController {
           console.error('Error serializing SSE data:', error);
         }
       });
-      
+
       return () => {
         unsubscribe();
       };
     }).pipe(
-      map(message => ({
+      map((message) => ({
         data: message.data,
         id: new Date().getTime().toString(),
-        type: 'message'
-      }))
+        type: 'message',
+      })),
     );
   }
 }

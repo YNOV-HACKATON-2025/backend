@@ -7,12 +7,7 @@ import { SensorModule } from './modules/sensors/sensor.module';
 import { AuthentificationModule } from './modules/authentification/authentification.module';
 
 @Module({
-  imports: [
-    MqttModule,
-    RoomModule,
-    SensorModule,
-    AuthentificationModule
-  ],
+  imports: [MqttModule, RoomModule, SensorModule, AuthentificationModule],
   controllers: [AppController],
   providers: [AppService],
 })
