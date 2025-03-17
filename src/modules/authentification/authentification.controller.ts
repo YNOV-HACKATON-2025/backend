@@ -13,7 +13,7 @@ export class AuthentificationController {
     return await this.authentificationService.create(createAuthentificationDto);
   }
 
-  @Get()
+  @Post('login')
   async findOne(@Body() loginDto: LoginDto) {
     return await this.authentificationService.findOne(loginDto);
   }
