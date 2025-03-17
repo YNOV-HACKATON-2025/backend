@@ -43,6 +43,7 @@ Le système est organisé en plusieurs modules :
 - npm ou yarn
 - Un compte Firebase (pour la base de données et l'authentification)
 - Un broker MQTT (configuration par défaut: HiveMQ Cloud)
+- Python (v3.8 ou supérieur)
 
 ### Étapes d'installation
 
@@ -61,7 +62,22 @@ Le système est organisé en plusieurs modules :
    
    La configuration Firebase est déjà incluse dans `src/main.ts`. Vous pouvez la modifier si nécessaire.
 
-4. **Démarrer l'application**
+4. **Configuration Python**
+   ```bash
+   # Créer un environnement virtuel
+   python -m venv .venv
+   
+   # Activer l'environnement virtuel
+   # Sur Windows
+   .venv\Scripts\activate
+   # Sur macOS/Linux
+   source .venv/bin/activate
+   
+   # Installer les dépendances Python
+   pip install -r requirements.txt
+   ```
+
+5. **Démarrer l'application**
    ```bash
    # Mode développement
    npm run start:dev
