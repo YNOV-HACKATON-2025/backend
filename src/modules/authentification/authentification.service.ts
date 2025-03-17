@@ -1,14 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateAuthentificationDto } from './dto/create-authentification.dto';
 import { UpdateAuthentificationDto } from './dto/update-authentification.dto';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+
 import { auth, db } from 'src/main';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthentificationService {
   async create(createAuthentificationDto: CreateAuthentificationDto) {
-    console.log(createAuthentificationDto);
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("email", "==", createAuthentificationDto.email));
+    const querySnapshot = await getDocs(q);
+    if(!querySnapshot.empty) throw new HttpException('UserAlreadyExist', HttpStatus.BAD_REQUEST);
 
     const userCredential = await createUserWithEmailAndPassword(
       auth,
@@ -28,10 +33,12 @@ export class AuthentificationService {
         updatedAt: new Date(),
       });
 
-      // Réponse de succès
-      return 'ok';
+      return {
+        statusCode: 200,
+        message: 'Succes'
+      };
     } else {
-      return 'error';
+      if(!querySnapshot.empty) throw new HttpException('FailedToInsertUser', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -39,8 +46,9 @@ export class AuthentificationService {
     return `This action returns all authentification`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} authentification`;
+  async findOne(loginDto: LoginDto) {
+    const userCredential = await signInWithEmailAndPassword(auth, loginDto.email, loginDto.password);
+    return userCredential;
   }
 
   update(id: number, updateAuthentificationDto: UpdateAuthentificationDto) {

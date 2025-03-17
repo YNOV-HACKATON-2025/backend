@@ -10,6 +10,7 @@ import {
 import { AuthentificationService } from './authentification.service';
 import { CreateAuthentificationDto } from './dto/create-authentification.dto';
 import { UpdateAuthentificationDto } from './dto/update-authentification.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('authentification')
 export class AuthentificationController {
@@ -19,19 +20,12 @@ export class AuthentificationController {
 
   @Post()
   async create(@Body() createAuthentificationDto: CreateAuthentificationDto) {
-    console.log(createAuthentificationDto);
-
     return await this.authentificationService.create(createAuthentificationDto);
   }
 
   @Get()
-  findAll() {
-    return this.authentificationService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authentificationService.findOne(+id);
+  async findOne(@Body() loginDto: LoginDto) {
+    return await this.authentificationService.findOne(loginDto);
   }
 
   @Patch(':id')
