@@ -37,7 +37,7 @@ export class SensorService {
       const sensorRef = await addDoc(collection(db, 'sensors'), sensor);
       
       // Subscribe to sensor topic
-      await this.mqttService.subscribe(sensor.topic);
+      await this.mqttService.subscribeToTopic(sensor.topic);
       
       this.logger.log(`Created sensor: ${sensor.name} with topic: ${sensor.topic}`);
       
@@ -122,7 +122,7 @@ export class SensorService {
       // If we're changing room, name, or type, recalculate the topic
       if (updates.roomId || updates.name || updates.type) {
         // Unsubscribe from old topic
-        await this.mqttService.unsubscribe(currentSensorData.topic);
+        await this.mqttService.unsubscribeFromTopic(currentSensorData.topic);
         
         const roomId = updates.roomId || currentSensorData.roomId;
         const roomDoc = await getDoc(doc(db, 'rooms', roomId));
@@ -138,7 +138,7 @@ export class SensorService {
         updates.topic = `${roomData.topic}/${sensorName}/${sensorType}`;
         
         // Subscribe to new topic
-        await this.mqttService.subscribe(updates.topic);
+        await this.mqttService.subscribeToTopic(updates.topic);
       }
       
       await updateDoc(sensorRef, updates);
@@ -165,7 +165,7 @@ export class SensorService {
       
       // Unsubscribe from sensor topic
       if (sensor.data().topic) {
-        await this.mqttService.unsubscribe(sensor.data().topic);
+        await this.mqttService.unsubscribeFromTopic(sensor.data().topic);
       }
       
       // Delete the sensor
@@ -236,9 +236,5 @@ export class SensorService {
       this.logger.error(`Failed to start sensor simulation: ${error.message}`);
       throw error;
     }
-  }
-
-  async stopSensorSimulation(sensorId: string): Promise<boolean> {
-    return this.mqttService.stopDeviceSimulation(sensorId);
   }
 }

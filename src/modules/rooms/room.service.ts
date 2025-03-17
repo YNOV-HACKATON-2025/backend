@@ -21,7 +21,7 @@ export class RoomService {
       const roomRef = await addDoc(collection(db, 'rooms'), room);
       
       // Subscribe to room topic
-      await this.mqttService.subscribe(room.topic);
+      await this.mqttService.subscribeToTopic(room.topic);
       
       this.logger.log(`Created room: ${room.name} with topic: ${room.topic}`);
       
@@ -83,8 +83,8 @@ export class RoomService {
       
       // If topic is being updated, unsubscribe from old topic and subscribe to new one
       if (updates.topic && updates.topic !== currentRoom.data().topic) {
-        await this.mqttService.unsubscribe(currentRoom.data().topic);
-        await this.mqttService.subscribe(updates.topic);
+        await this.mqttService.unsubscribeFromTopic(currentRoom.data().topic);
+        await this.mqttService.subscribeToTopic(updates.topic);
       }
       
       await updateDoc(roomRef, updates);
@@ -110,7 +110,7 @@ export class RoomService {
       }
       
       // Unsubscribe from room topic
-      await this.mqttService.unsubscribe(room.data().topic);
+      await this.mqttService.unsubscribeFromTopic(room.data().topic);
       
       // Delete the room
       await deleteDoc(roomRef);

@@ -86,19 +86,4 @@ export class SensorController {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
-  @Post(':id/simulate/stop')
-  async stopSimulation(@Param('id') id: string) {
-    try {
-      const success = await this.sensorService.stopSensorSimulation(id);
-      
-      if (success) {
-        return { message: `Simulation stopped for sensor ${id}` };
-      } else {
-        throw new HttpException(`No simulation running for sensor ${id}`, HttpStatus.NOT_FOUND);
-      }
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
 }

@@ -1,12 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Sse } from '@nestjs/common';
+import { Controller, Get, Sse } from '@nestjs/common';
 import { MqttService } from './mqtt.service';
-import { SimulateDeviceDto } from './dto/simulate-device.dto';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-// Définition d'un type compatible avec SSE
+// Type definition compatible with SSE
 interface SseMessage {
-  data: string; // Les données doivent être sous forme de chaîne pour SSE
+  data: string;
   id?: string;
   type?: string;
 }
@@ -15,47 +14,10 @@ interface SseMessage {
 export class MqttController {
   constructor(private readonly mqttService: MqttService) {}
 
-  @Post('subscribe/:topic')
-  async subscribeToTopic(@Param('topic') topic: string) {
-    await this.mqttService.subscribe(topic);
-    return { success: true, topic };
-  }
-
-  @Delete('subscribe/:topic')
-  async unsubscribeFromTopic(@Param('topic') topic: string) {
-    await this.mqttService.unsubscribe(topic);
-    return { success: true, topic };
-  }
-
-  @Post('publish')
-  async publishMessage(@Body() body: { topic: string; message: any }) {
-    await this.mqttService.publish(body.topic, body.message);
-    return { success: true };
-  }
-
-  @Post('simulate')
-  startSimulation(@Body() simulateDeviceDto: SimulateDeviceDto) {
-    const { deviceId, topic, interval } = simulateDeviceDto;
-    this.mqttService.startDeviceSimulation(deviceId, topic, interval);
-    return { success: true, deviceId, topic };
-  }
-
-  @Delete('simulate/:deviceId')
-  stopSimulation(@Param('deviceId') deviceId: string) {
-    const result = this.mqttService.stopDeviceSimulation(deviceId);
-    return { success: result, deviceId };
-  }
-
-  @Delete('simulate')
-  stopAllSimulations() {
-    this.mqttService.stopAllSimulations();
-    return { success: true };
-  }
-
-  @Get('simulate')
+  @Get('simulations')
   getRunningSimulations() {
     const simulations = this.mqttService.getRunningSimulations();
-    return { simulations };
+    return { simulations, count: simulations.length };
   }
 
   @Sse('stream')
@@ -63,7 +25,7 @@ export class MqttController {
     return new Observable<SseMessage>(subscriber => {
       const unsubscribe = this.mqttService.onMessage((data) => {
         try {
-          // Transformer data en chaîne JSON
+          // Transform data to JSON string
           const eventData = JSON.stringify(data);
           subscriber.next({ data: eventData });
         } catch (error) {
