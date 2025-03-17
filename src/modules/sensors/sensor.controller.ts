@@ -68,22 +68,4 @@ export class SensorController {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
-  @Post(':id/simulate/start')
-  async startSimulation(@Param('id') id: string, @Body() options: { interval?: number }) {
-    try {
-      const success = await this.sensorService.startSensorSimulation(
-        id, 
-        options.interval || 5000
-      );
-      
-      if (success) {
-        return { message: `Simulation started for sensor ${id}` };
-      } else {
-        throw new HttpException(`Failed to start simulation for sensor ${id}`, HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
 }

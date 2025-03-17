@@ -26,6 +26,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   private messageEventEmitter = new EventEmitter();
   private simulationIntervals: Map<string, NodeJS.Timeout> = new Map();
   private isConnected = false;
+  private sensorCheckInterval: NodeJS.Timeout; // Added to store periodic check interval
 
   constructor() {
     this.client = connect("mqtt://46eccffd0ebc4eb8b5a2ef13663c1c28.s1.eu.hivemq.cloud:8883", {
@@ -42,8 +43,14 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     // Wait a moment for the connection to establish before starting simulations
     setTimeout(async () => {
       try {
-        // Start simulations for temperature and humidity sensors automatically
+        // Initial check for sensors
         await this.startSimulationsForSensorTypes(['temperature', 'humidity']);
+        
+        // Set up periodic check every 20 seconds
+        this.sensorCheckInterval = setInterval(async () => {
+          this.logger.log('Performing periodic check for new sensors...');
+          await this.startSimulationsForSensorTypes(['temperature', 'humidity']);
+        }, 20000);
       } catch (error) {
         this.logger.error(`Failed to start sensor simulations on init: ${error.message}`);
       }
@@ -51,6 +58,10 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleDestroy() {
+    // Clear the sensor check interval
+    if (this.sensorCheckInterval) {
+      clearInterval(this.sensorCheckInterval);
+    }
     this.stopAllSimulations();
     this.client.end();
   }
