@@ -47,7 +47,6 @@ export class AuthentificationService {
 
   async findOne(loginDto: LoginDto) {
     const userCredential = await signInWithEmailAndPassword(auth, loginDto.email, loginDto.password);
-    console.log(userCredential);
     return userCredential;
   }
 
