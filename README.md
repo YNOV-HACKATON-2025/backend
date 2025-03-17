@@ -1,99 +1,217 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Smart Home Monitoring System - Ynov Hackathon 2025
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+![NestJS](https://img.shields.io/badge/NestJS-10.0.0-red)
+![Firebase](https://img.shields.io/badge/Firebase-11.4.0-yellow)
+![MQTT](https://img.shields.io/badge/MQTT-5.10.4-green)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.1.3-blue)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 📋 Description
 
-## Description
+Ce projet est un système de monitoring domotique conçu pour la gestion de capteurs IoT dans différentes pièces d'un bâtiment. Développé avec NestJS, il propose une API REST complète ainsi qu'un système de communication en temps réel via MQTT pour collecter et gérer les données des capteurs.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🛠️ Technologies
 
-## Project setup
+- **Backend**: NestJS (Framework Node.js)
+- **Base de données**: Firebase Firestore
+- **Authentification**: Firebase Auth
+- **Communication IoT**: MQTT (via HiveMQ Cloud)
+- **Langage**: TypeScript
 
-```bash
-$ npm install
+## ⚙️ Architecture
+
+Le système est organisé en plusieurs modules :
+
+- **Module Room**: Gestion des pièces/zones
+- **Module Sensor**: Gestion des différents capteurs (température, humidité, etc.)
+- **Module MQTT**: Communication en temps réel avec les appareils IoT
+- **Module Authentication**: Gestion des utilisateurs et authentification
+
+## 🚀 Fonctionnalités
+
+- 🏠 **Gestion des pièces**: Création, modification, suppression et récupération
+- 🌡️ **Gestion des capteurs**: Ajout, configuration et suppression de capteurs par pièce
+- 📡 **Communication MQTT**: Échange de données en temps réel avec les appareils connectés
+- 🔄 **Simulation de données**: Génération automatique de données pour les capteurs
+- 👤 **Authentification**: Inscription et connexion des utilisateurs
+- 📊 **Flux de données SSE**: Streaming des données en temps réel
+
+## 📥 Installation
+
+### Prérequis
+
+- Node.js (v16 ou supérieur)
+- npm ou yarn
+- Un compte Firebase (pour la base de données et l'authentification)
+- Un broker MQTT (configuration par défaut: HiveMQ Cloud)
+
+### Étapes d'installation
+
+1. **Cloner le dépôt**
+   ```bash
+   git clone <repository-url>
+   cd ynov-hackaton-2025
+   ```
+
+2. **Installer les dépendances**
+   ```bash
+   npm install
+   ```
+
+3. **Configuration Firebase**
+   
+   La configuration Firebase est déjà incluse dans `src/main.ts`. Vous pouvez la modifier si nécessaire.
+
+4. **Démarrer l'application**
+   ```bash
+   # Mode développement
+   npm run start:dev
+   
+   # Mode production
+   npm run start:prod
+   ```
+
+## 📚 API Documentation
+
+### Gestion des pièces (Rooms)
+
+- **Créer une pièce**
+  ```
+  POST /rooms
+  Body: { "name": "Salon", "topic": "home/salon" }
+  ```
+
+- **Récupérer toutes les pièces**
+  ```
+  GET /rooms
+  ```
+
+- **Récupérer une pièce par ID**
+  ```
+  GET /rooms/{id}
+  ```
+
+- **Mettre à jour une pièce**
+  ```
+  PUT /rooms/{id}
+  Body: { "name": "Nouveau nom", "topic": "nouveau/topic" }
+  ```
+
+- **Supprimer une pièce**
+  ```
+  DELETE /rooms/{id}
+  ```
+
+### Gestion des capteurs (Sensors)
+
+- **Créer un capteur**
+  ```
+  POST /sensors
+  Body: { "name": "TempSensor1", "roomId": "room-id", "type": "temperature" }
+  ```
+
+- **Récupérer tous les capteurs**
+  ```
+  GET /sensors
+  ```
+
+- **Récupérer les capteurs d'une pièce**
+  ```
+  GET /sensors?roomId={roomId}
+  ```
+
+- **Récupérer un capteur par ID**
+  ```
+  GET /sensors/{id}
+  ```
+
+- **Mettre à jour un capteur**
+  ```
+  PUT /sensors/{id}
+  Body: { "name": "Nouveau nom", "type": "humidity" }
+  ```
+
+- **Supprimer un capteur**
+  ```
+  DELETE /sensors/{id}
+  ```
+
+### Communication MQTT
+
+- **Simulations en cours**
+  ```
+  GET /mqtt/simulations
+  ```
+
+- **Flux de données en temps réel**
+  ```
+  GET /mqtt/stream (SSE endpoint)
+  ```
+
+### Authentification
+
+- **Créer un utilisateur**
+  ```
+  POST /authentification
+  Body: { "email": "user@example.com", "password": "password", "username": "username" }
+  ```
+
+## 🗂️ Structure du projet
+
+```
+src/
+├── modules/
+│   ├── authentification/  # Gestion des utilisateurs
+│   ├── mqtt/              # Service de communication MQTT
+│   ├── rooms/             # Gestion des pièces
+│   └── sensors/           # Gestion des capteurs
+├── app.controller.ts
+├── app.module.ts
+├── app.service.ts
+└── main.ts               # Point d'entrée et configuration Firebase
 ```
 
-## Compile and run the project
+## 🌐 Fonctionnement MQTT
+
+Le système utilise MQTT pour communiquer avec les capteurs IoT:
+
+- **Topic par pièce**: Chaque pièce a son propre topic MQTT
+- **Topic par capteur**: Format `{room-topic}/{sensor-name}/{sensor-type}`
+- **Simulation automatique**: Les capteurs de température et d'humidité génèrent des données simulées
+- **Streaming SSE**: Les données MQTT sont disponibles via un endpoint SSE
+
+## 🔍 Caractéristiques techniques
+
+- **Firebase Firestore**: Stockage NoSQL pour les pièces et les capteurs
+- **Firebase Auth**: Gestion sécurisée des utilisateurs
+- **MQTT over TLS**: Communication sécurisée avec les appareils IoT
+- **Server-Sent Events**: Communication temps réel avec le frontend
+
+## 📝 Développement
+
+### Commandes utiles
 
 ```bash
-# development
-$ npm run start
+# Lancer l'application en mode développement
+npm run start:dev
 
-# watch mode
-$ npm run start:dev
+# Compiler le projet
+npm run build
 
-# production mode
-$ npm run start:prod
+# Lancer les tests
+npm run test
+
+# Linting
+npm run lint
 ```
 
-## Run tests
+## 📄 Licence
 
-```bash
-# unit tests
-$ npm run test
+Ce projet est sous licence MIT.
 
-# e2e tests
-$ npm run test:e2e
+## 👥 Équipe 
 
-# test coverage
-$ npm run test:cov
-```
+Développé pour le Hackathon Ynov 2025.
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+💡 **Note**: Ce projet a été développé dans un cadre académique pour le Hackathon Ynov 2025 et représente un système de gestion IoT pour smart home avec monitoring en temps réel des capteurs.

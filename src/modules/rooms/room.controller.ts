@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { RoomService, Room } from './room.service';
 
 @Controller('rooms')
@@ -28,7 +38,10 @@ export class RoomController {
     try {
       const room = await this.roomService.getRoomById(id);
       if (!room) {
-        throw new HttpException(`Room with ID ${id} not found`, HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          `Room with ID ${id} not found`,
+          HttpStatus.NOT_FOUND,
+        );
       }
       return room;
     } catch (error) {

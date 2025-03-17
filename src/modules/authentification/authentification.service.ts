@@ -3,6 +3,7 @@ import { CreateAuthentificationDto } from './dto/create-authentification.dto';
 import { UpdateAuthentificationDto } from './dto/update-authentification.dto';
 import { doc, setDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+
 import { auth, db } from 'src/main';
 import { LoginDto } from './dto/login.dto';
 
@@ -13,14 +14,14 @@ export class AuthentificationService {
     const q = query(usersRef, where("email", "==", createAuthentificationDto.email));
     const querySnapshot = await getDocs(q);
     if(!querySnapshot.empty) throw new HttpException('UserAlreadyExist', HttpStatus.BAD_REQUEST);
-    
+
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       createAuthentificationDto.email,
-      createAuthentificationDto.password
+      createAuthentificationDto.password,
     );
 
-    const userRef = doc(db, "users", userCredential.user.uid);
+    const userRef = doc(db, 'users', userCredential.user.uid);
     const userDoc = await getDoc(userRef);
 
     if (!userDoc.exists()) {
