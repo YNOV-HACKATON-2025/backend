@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAuthentificationDto } from './dto/create-authentification.dto';
 import { UpdateAuthentificationDto } from './dto/update-authentification.dto';
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from 'src/main';
 
@@ -9,14 +9,14 @@ import { auth, db } from 'src/main';
 export class AuthentificationService {
   async create(createAuthentificationDto: CreateAuthentificationDto) {
     console.log(createAuthentificationDto);
-    
+
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       createAuthentificationDto.email,
-      createAuthentificationDto.password
+      createAuthentificationDto.password,
     );
 
-    const userRef = doc(db, "users", userCredential.user.uid);
+    const userRef = doc(db, 'users', userCredential.user.uid);
     const userDoc = await getDoc(userRef);
 
     if (!userDoc.exists()) {

@@ -7,6 +7,6 @@ import { MqttModule } from '../mqtt/mqtt.module';
   imports: [MqttModule],
   providers: [RoomService],
   controllers: [RoomController],
-  exports: [RoomService]
+  exports: [RoomService],
 })
 export class RoomModule {}

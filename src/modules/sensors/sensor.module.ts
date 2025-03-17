@@ -7,6 +7,6 @@ import { MqttModule } from '../mqtt/mqtt.module';
   imports: [MqttModule],
   providers: [SensorService],
   controllers: [SensorController],
-  exports: [SensorService]
+  exports: [SensorService],
 })
 export class SensorModule {}

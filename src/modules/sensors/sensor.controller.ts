@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, HttpStatus, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  HttpException,
+  HttpStatus,
+  Query,
+} from '@nestjs/common';
 import { SensorService, Sensor } from './sensor.service';
 
 @Controller('sensors')
@@ -31,7 +42,10 @@ export class SensorController {
     try {
       const sensor = await this.sensorService.getSensorById(id);
       if (!sensor) {
-        throw new HttpException(`Sensor with ID ${id} not found`, HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          `Sensor with ID ${id} not found`,
+          HttpStatus.NOT_FOUND,
+        );
       }
       return sensor;
     } catch (error) {
@@ -43,7 +57,10 @@ export class SensorController {
   }
 
   @Put(':id')
-  async updateSensor(@Param('id') id: string, @Body() updates: Partial<Sensor>) {
+  async updateSensor(
+    @Param('id') id: string,
+    @Body() updates: Partial<Sensor>,
+  ) {
     try {
       return await this.sensorService.updateSensor(id, updates);
     } catch (error) {
