@@ -21,6 +21,12 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log'],
   });
 
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type,Authorization',
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Domoticz API')
     .setDescription('The Domoticz API description')
