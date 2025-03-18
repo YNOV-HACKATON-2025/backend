@@ -11,6 +11,7 @@ export interface Room {
   id?: string;
   name: string;
   topic: string;
+  picture?: string;
 }
 
 export interface CommandResult {
