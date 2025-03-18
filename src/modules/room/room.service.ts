@@ -26,6 +26,8 @@ export class RoomService {
   private actionKeywords = {
     on: ['allume', 'active', 'démarre', 'allumer', 'activer', 'démarrer', 'on'],
     off: [
+      'etang',
+      'ethang',
       'etant',
       'éteint',
       'eteindre',
@@ -261,7 +263,8 @@ export class RoomService {
     if (
       deviceType === 'temperature' &&
       (sensor.type.toLowerCase().includes('therm') ||
-        sensor.type.toLowerCase().includes('heat'))
+        sensor.type.toLowerCase().includes('heat') ||
+        sensor.type.toLowerCase().includes('radiator'))
     ) {
       return true;
     }
