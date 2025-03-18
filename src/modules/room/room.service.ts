@@ -1,17 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
-  collection,
   addDoc,
-  updateDoc,
+  collection,
   deleteDoc,
   doc,
-  getDocs,
   getDoc,
+  getDocs,
+  updateDoc,
 } from 'firebase/firestore';
 import { db } from '../../main';
 import { MqttService } from '../mqtt/mqtt.service';
 import { SensorService } from '../sensor/sensor.service';
-import { Room, Sensor, CommandResult } from '../shared/interfaces';
+import { CommandResult, Room, Sensor } from '../shared/interfaces';
 
 @Injectable()
 export class RoomService {
@@ -26,6 +26,7 @@ export class RoomService {
   private actionKeywords = {
     on: ['allume', 'active', 'démarre', 'allumer', 'activer', 'démarrer', 'on'],
     off: [
+      'eteindre',
       'éteins',
       'désactive',
       'arrête',
@@ -195,13 +196,29 @@ export class RoomService {
    * Determine what action the command is trying to perform
    */
   private determineAction(text: string): string | null {
+    this.logger.debug(`Determining action from text: "${text}"`);
+
+    // First check for explicit off commands - give them higher priority
+    for (const keyword of this.actionKeywords.off) {
+      if (text.includes(keyword)) {
+        this.logger.debug(`Found 'off' keyword: ${keyword}`);
+        return 'off';
+      }
+    }
+
+    // Then check other actions
     for (const [action, keywords] of Object.entries(this.actionKeywords)) {
+      if (action === 'off') continue; // Already checked above
+
       for (const keyword of keywords) {
         if (text.includes(keyword)) {
+          this.logger.debug(`Found '${action}' keyword: ${keyword}`);
           return action;
         }
       }
     }
+
+    this.logger.debug('No action keywords found in text');
     return null;
   }
 
