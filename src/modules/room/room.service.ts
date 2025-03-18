@@ -26,6 +26,8 @@ export class RoomService {
   private actionKeywords = {
     on: ['allume', 'active', 'démarre', 'allumer', 'activer', 'démarrer', 'on'],
     off: [
+      'etant',
+      'éteint',
       'eteindre',
       'éteins',
       'désactive',
