@@ -26,7 +26,10 @@ WORKDIR ${APP_HOME}
 COPY --from=builder --chown=node:node ${APP_HOME}/package*.json ./
 COPY --from=builder --chown=node:node ${APP_HOME}/node_modules ./node_modules
 COPY --from=builder --chown=node:node ${APP_HOME}/dist ./src
+COPY --from=builder --chown=node:node ${APP_HOME}/.env ./
 
 USER node
 EXPOSE 8033
 CMD ["node", "src/main.js"]
+
+# CMD : docker network connect --ip 172.20.0.15 cloudflare ynov-hackaton-2025-server
