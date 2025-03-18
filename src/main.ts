@@ -3,15 +3,16 @@ import { AppModule } from './app.module';
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import 'dotenv/config';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyBryUOt9ITqrNB-JrRHyHKRCQNaMINg_iA',
-  authDomain: 'ynov-hackathon25-gr3.firebaseapp.com',
-  projectId: 'ynov-hackathon25-gr3',
-  storageBucket: 'ynov-hackathon25-gr3.firebasestorage.app',
-  messagingSenderId: '914001134860',
-  appId: '1:914001134860:web:80e688ad9e57dff57e3529',
-  measurementId: 'G-3EV8MQQXCG',
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID,
 };
 
 async function bootstrap() {
@@ -19,9 +20,6 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000);
 }
 export const firebaseApp = initializeApp(firebaseConfig);
-// admin.initializeApp({
-//   credential: admin.credential.cert(firebaseConfig),
-// });
 export const auth = getAuth(firebaseApp);
 export const db = getFirestore(firebaseApp);
 bootstrap();

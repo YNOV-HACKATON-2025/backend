@@ -8,6 +8,7 @@ import { EventEmitter } from 'events';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { connect, MqttClient } from 'mqtt';
 import { db } from '../../main';
+import 'dotenv/config';
 
 interface Sensor {
   id?: string;
@@ -27,15 +28,12 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   private sensorCheckInterval: NodeJS.Timeout; // Added to store periodic check interval
 
   constructor() {
-    this.client = connect(
-      'mqtt://46eccffd0ebc4eb8b5a2ef13663c1c28.s1.eu.hivemq.cloud:8883',
-      {
-        username: 'Ynov-2025',
-        password: 'Ynov-2025',
-        protocol: 'mqtts',
-        rejectUnauthorized: false,
-      },
-    );
+    this.client = connect(process.env.MQTT_BROKER_URL, {
+      username: process.env.MQTT_USERNAME,
+      password: process.env.MQTT_PASSWORD,
+      protocol: 'mqtts',
+      rejectUnauthorized: false,
+    });
   }
 
   async onModuleInit() {

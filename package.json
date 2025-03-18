@@ -25,6 +25,7 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^10.4.15",
     "class-validator": "^0.14.1",
+    "dotenv": "^16.4.7",
     "firebase": "^11.4.0",
     "firebase-admin": "^13.2.0",
     "mqtt": "^5.10.4",
