@@ -17,7 +17,9 @@ const firebaseConfig = {
 };
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'log'],
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Domoticz API')
