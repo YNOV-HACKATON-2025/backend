@@ -10,7 +10,15 @@ import { memoryStorage } from 'multer';
 import * as path from 'path';
 import { SpeechService } from './speech.service';
 import { RoomService } from '../room/room.service';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiConsumes,
+  ApiBody,
+  ApiResponse,
+} from '@nestjs/swagger';
 
+@ApiTags('speech')
 @Controller('speech')
 export class SpeechController {
   private readonly logger = new Logger(SpeechController.name);
@@ -20,6 +28,37 @@ export class SpeechController {
   ) {}
 
   @Post('transcribe')
+  @ApiOperation({ summary: 'Transcribe audio file to text' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Audio file to transcribe (.mp3, .wav, .flac, .m4a)',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Audio successfully transcribed',
+    schema: {
+      type: 'object',
+      properties: {
+        transcription: { type: 'string' },
+        commandProcessed: { type: 'boolean' },
+        commandResult: { type: 'object' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request or unsupported file format',
+  })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),

@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
@@ -17,6 +18,15 @@ const firebaseConfig = {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const config = new DocumentBuilder()
+    .setTitle('Domoticz API')
+    .setDescription('The Domoticz API description')
+    .setVersion('1.0')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, documentFactory);
+
   await app.listen(process.env.PORT ?? 3000);
 }
 export const firebaseApp = initializeApp(firebaseConfig);
