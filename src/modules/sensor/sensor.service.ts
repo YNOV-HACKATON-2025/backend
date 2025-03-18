@@ -12,16 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../main';
 import { MqttService } from '../mqtt/mqtt.service';
-import { Room } from '../rooms/room.service';
-
-// Export the interface so it can be imported elsewhere
-export interface Sensor {
-  id?: string;
-  name: string;
-  roomId: string;
-  type: string;
-  topic?: string;
-}
+import { Room, Sensor } from '../shared/interfaces';
 
 @Injectable()
 export class SensorService {

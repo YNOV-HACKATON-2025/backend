@@ -9,11 +9,15 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import * as path from 'path';
 import { SpeechService } from './speech.service';
+import { RoomService } from '../room/room.service';
 
 @Controller('speech')
 export class SpeechController {
   private readonly logger = new Logger(SpeechController.name);
-  constructor(private readonly speechService: SpeechService) {}
+  constructor(
+    private readonly speechService: SpeechService,
+    private readonly roomService: RoomService,
+  ) {}
 
   @Post('transcribe')
   @UseInterceptors(
@@ -43,7 +47,14 @@ export class SpeechController {
         path.extname(file.originalname).toLowerCase(),
       );
 
-      return { transcription: result };
+      // Process command if the transcription contains one
+      const commandResult = await this.roomService.processVoiceCommand(result);
+
+      return {
+        transcription: result,
+        commandProcessed: commandResult.processed,
+        commandResult: commandResult.result,
+      };
     } catch (error) {
       this.logger.error(`Transcription error: ${error.message}`);
       throw error;

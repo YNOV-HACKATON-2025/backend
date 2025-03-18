@@ -8,46 +8,43 @@ import {
   Delete,
   HttpException,
   HttpStatus,
-  Query,
 } from '@nestjs/common';
-import { SensorService, Sensor } from './sensor.service';
+import { RoomService } from './room.service';
+import { Room } from '../shared/interfaces';
 
-@Controller('sensors')
-export class SensorController {
-  constructor(private readonly sensorService: SensorService) {}
+@Controller('rooms')
+export class RoomController {
+  constructor(private readonly roomService: RoomService) {}
 
   @Post()
-  async createSensor(@Body() sensor: Sensor) {
+  async createRoom(@Body() room: Room) {
     try {
-      return await this.sensorService.createSensor(sensor);
+      return await this.roomService.createRoom(room);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
   @Get()
-  async getAllSensors(@Query('roomId') roomId?: string) {
+  async getAllRooms() {
     try {
-      if (roomId) {
-        return await this.sensorService.getSensorsByRoom(roomId);
-      }
-      return await this.sensorService.getAllSensors();
+      return await this.roomService.getAllRooms();
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Get(':id')
-  async getSensorById(@Param('id') id: string) {
+  async getRoomById(@Param('id') id: string) {
     try {
-      const sensor = await this.sensorService.getSensorById(id);
-      if (!sensor) {
+      const room = await this.roomService.getRoomById(id);
+      if (!room) {
         throw new HttpException(
-          `Sensor with ID ${id} not found`,
+          `Room with ID ${id} not found`,
           HttpStatus.NOT_FOUND,
         );
       }
-      return sensor;
+      return room;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -57,12 +54,9 @@ export class SensorController {
   }
 
   @Put(':id')
-  async updateSensor(
-    @Param('id') id: string,
-    @Body() updates: Partial<Sensor>,
-  ) {
+  async updateRoom(@Param('id') id: string, @Body() updates: Partial<Room>) {
     try {
-      return await this.sensorService.updateSensor(id, updates);
+      return await this.roomService.updateRoom(id, updates);
     } catch (error) {
       if (error.message.includes('not found')) {
         throw new HttpException(error.message, HttpStatus.NOT_FOUND);
@@ -72,11 +66,11 @@ export class SensorController {
   }
 
   @Delete(':id')
-  async deleteSensor(@Param('id') id: string) {
+  async deleteRoom(@Param('id') id: string) {
     try {
-      const success = await this.sensorService.deleteSensor(id);
+      const success = await this.roomService.deleteRoom(id);
       if (success) {
-        return { message: `Sensor with ID ${id} successfully deleted` };
+        return { message: `Room with ID ${id} successfully deleted` };
       }
     } catch (error) {
       if (error.message.includes('not found')) {
