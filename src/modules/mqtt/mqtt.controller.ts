@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MqttService } from './mqtt.service';
 
-// Type definition compatible with SSE
 interface SseMessage {
   data: string;
   id?: string;
@@ -52,7 +51,6 @@ export class MqttController {
     return new Observable<SseMessage>((subscriber) => {
       const unsubscribe = this.mqttService.onMessage((data) => {
         try {
-          // Transform data to JSON string
           const eventData = JSON.stringify(data);
           subscriber.next({ data: eventData });
         } catch (error) {

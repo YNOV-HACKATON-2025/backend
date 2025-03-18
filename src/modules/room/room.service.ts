@@ -22,7 +22,6 @@ export class RoomService {
     private sensorService: SensorService,
   ) {}
 
-  // Command keywords for parsing
   private actionKeywords = {
     on: ['allume', 'active', 'démarre', 'allumer', 'activer', 'démarrer', 'on'],
     off: [
@@ -81,13 +80,11 @@ export class RoomService {
       this.logger.log(`Processing voice command: "${text}"`);
       const normalizedText = text.toLowerCase().trim();
 
-      // Initial result - will be updated as we process the command
       const result: CommandResult = {
         processed: false,
         result: 'Command not recognized',
       };
 
-      // 1. Find which room the command refers to
       const rooms = await this.getAllRooms();
       const targetRoom = this.findTargetRoom(normalizedText, rooms);
 
@@ -101,7 +98,6 @@ export class RoomService {
 
       result.room = targetRoom.name;
 
-      // 2. Determine the action (on, off, set, get)
       const action = this.determineAction(normalizedText);
       if (!action) {
         this.logger.warn(`No action found in command: "${text}"`);
@@ -113,7 +109,6 @@ export class RoomService {
 
       result.action = action;
 
-      // 3. Identify the device type
       const deviceType = this.identifyDeviceType(normalizedText);
       if (!deviceType) {
         this.logger.warn(`No device type found in command: "${text}"`);
@@ -125,7 +120,6 @@ export class RoomService {
 
       result.device = deviceType;
 
-      // 4. Get relevant sensors for this room and device type
       const sensors = await this.sensorService.getSensorsByRoom(targetRoom.id);
       const matchingSensors = sensors.filter((s) =>
         this.isSensorMatchingDeviceType(s, deviceType),
@@ -141,19 +135,16 @@ export class RoomService {
         };
       }
 
-      // 5. Extract value if needed (for set commands)
       let value: any = null;
       if (action === 'set') {
         value = this.extractValueFromCommand(normalizedText, deviceType);
         result.value = value;
       }
 
-      // 6. Execute the command via MQTT for each matching sensor
       for (const sensor of matchingSensors) {
         await this.executeSensorCommand(sensor, action, value);
       }
 
-      // 7. Return success result
       result.processed = true;
       result.result = this.generateSuccessMessage(
         action,
@@ -182,7 +173,6 @@ export class RoomService {
         return room;
       }
 
-      // Check for common variations (like "salon" vs "living room")
       if (roomName === 'salon' && text.includes('living')) return room;
       if (roomName === 'cuisine' && text.includes('kitchen')) return room;
       if (roomName === 'chambre' && text.includes('bedroom')) return room;
@@ -201,7 +191,6 @@ export class RoomService {
   private determineAction(text: string): string | null {
     this.logger.debug(`Determining action from text: "${text}"`);
 
-    // First check for explicit off commands - give them higher priority
     for (const keyword of this.actionKeywords.off) {
       if (text.includes(keyword)) {
         this.logger.debug(`Found 'off' keyword: ${keyword}`);
@@ -209,9 +198,8 @@ export class RoomService {
       }
     }
 
-    // Then check other actions
     for (const [action, keywords] of Object.entries(this.actionKeywords)) {
-      if (action === 'off') continue; // Already checked above
+      if (action === 'off') continue;
 
       for (const keyword of keywords) {
         if (text.includes(keyword)) {
@@ -246,12 +234,10 @@ export class RoomService {
     sensor: Sensor,
     deviceType: string,
   ): boolean {
-    // Direct match on sensor type
     if (sensor.type.toLowerCase() === deviceType.toLowerCase()) {
       return true;
     }
 
-    // Handle special cases
     if (
       deviceType === 'light' &&
       sensor.type.toLowerCase().includes('switch')
@@ -275,16 +261,13 @@ export class RoomService {
    * Extract value parameters from commands (e.g., temperature setting)
    */
   private extractValueFromCommand(text: string, deviceType: string): any {
-    // Extract numeric values
     const numberMatch = text.match(/\b(\d+([,.]\d+)?)\b/);
     if (numberMatch) {
       const value = parseFloat(numberMatch[0].replace(',', '.'));
 
-      // Return appropriate values based on device type
       if (deviceType === 'temperature') {
-        return value; // Temperature in Celsius
+        return value;
       } else if (deviceType === 'light') {
-        // Handle percentage for brightness
         if (
           text.includes('%') ||
           text.includes('percent') ||
@@ -298,13 +281,12 @@ export class RoomService {
       return value;
     }
 
-    // Handle binary states for devices
     if (
       deviceType === 'light' ||
       deviceType === 'fan' ||
       deviceType === 'outlet'
     ) {
-      return 'on'; // Default to "on" if no specific value found
+      return 'on';
     }
 
     return null;
@@ -378,10 +360,8 @@ export class RoomService {
 
   async createRoom(room: Room): Promise<Room> {
     try {
-      // Add room to Firebase
       const roomRef = await addDoc(collection(db, 'rooms'), room);
 
-      // Subscribe to room topic
       await this.mqttService.subscribeToTopic(room.topic);
 
       this.logger.log(`Created room: ${room.name} with topic: ${room.topic}`);
@@ -442,7 +422,6 @@ export class RoomService {
         throw new Error(`Room with ID ${roomId} not found`);
       }
 
-      // If topic is being updated, unsubscribe from old topic and subscribe to new one
       if (updates.topic && updates.topic !== currentRoom.data().topic) {
         await this.mqttService.unsubscribeFromTopic(currentRoom.data().topic);
         await this.mqttService.subscribeToTopic(updates.topic);
@@ -470,10 +449,8 @@ export class RoomService {
         throw new Error(`Room with ID ${roomId} not found`);
       }
 
-      // Unsubscribe from room topic
       await this.mqttService.unsubscribeFromTopic(room.data().topic);
 
-      // Delete the room
       await deleteDoc(roomRef);
 
       return true;

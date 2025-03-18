@@ -25,7 +25,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   private messageEventEmitter = new EventEmitter();
   private simulationIntervals: Map<string, NodeJS.Timeout> = new Map();
   private isConnected = false;
-  private sensorCheckInterval: NodeJS.Timeout; // Added to store periodic check interval
+  private sensorCheckInterval: NodeJS.Timeout;
 
   constructor() {
     this.client = connect(process.env.MQTT_BROKER_URL, {
@@ -39,16 +39,12 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     await this.setupClientEventHandlers();
 
-    // Start the global topic listener for debugging
     this.startGlobalTopicListener();
-    
-    // Wait a moment for the connection to establish before starting simulations
+
     setTimeout(async () => {
       try {
-        // Initial check for sensors
         await this.startSimulationsForSensorTypes(['temperature', 'humidity']);
 
-        // Set up periodic check every 20 seconds
         this.sensorCheckInterval = setInterval(async () => {
           this.logger.log('Performing periodic check for new sensors...');
           await this.startSimulationsForSensorTypes([
@@ -65,7 +61,6 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleDestroy() {
-    // Clear the sensor check interval
     if (this.sensorCheckInterval) {
       clearInterval(this.sensorCheckInterval);
     }
@@ -96,7 +91,6 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
         });
       });
 
-      // Safety timeout to resolve promise even if connect event doesn't fire
       setTimeout(() => {
         if (!this.isConnected) {
           this.logger.warn('MQTT connection timeout - proceeding anyway');
@@ -187,30 +181,28 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       });
     });
   }
-  
+
   /**
    * Start global topic listener for debugging purposes
    * This subscribes to all topics and logs messages with appropriate emojis
    */
   startGlobalTopicListener() {
     this.logger.log('🔍 Starting global MQTT topic listener for debugging');
-    
+
     return this.subscribe('#')
       .then(() => {
         this.messageEventEmitter.on('message', ({ topic, message }) => {
           try {
-            // Parse message if it's JSON
             let data;
             try {
               data = JSON.parse(message);
             } catch {
               data = message;
             }
-            
-            // Determine the type of sensor/device from topic or message content
+
             if (topic.includes('light') || (data && data.type === 'light')) {
               this.logger.debug(`💡 LIGHT [${topic}]: ${message}`);
-            } 
+            }
             else if (topic.includes('temperature') || (data && 'temperature' in data) || (data && data.type === 'temperature')) {
               this.logger.debug(`🌡️ TEMPERATURE [${topic}]: ${message}`);
             }
@@ -227,7 +219,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
             this.logger.error(`Error processing MQTT message: ${error.message}`);
           }
         });
-        
+
         this.logger.log('🎯 Global MQTT topic listener active');
       })
       .catch(error => {
@@ -243,7 +235,6 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     interval: number = 15000,
   ) {
     try {
-      // Get all sensors of the specified types
       const sensors: Sensor[] = [];
 
       for (const type of types) {
@@ -262,7 +253,6 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
         return;
       }
 
-      // Start simulation for each sensor
       let successCount = 0;
       for (const sensor of sensors) {
         try {
@@ -327,10 +317,8 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       return false;
     }
 
-    // Stop any existing simulation for this sensor
     this.stopDeviceSimulation(sensor.id);
 
-    // Generate appropriate simulation data based on sensor type
     const simulationFunction = () => {
       const baseData = {
         sensorId: sensor.id,
@@ -359,7 +347,6 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       }
     };
 
-    // Create interval that publishes data regularly
     const simulationInterval = setInterval(async () => {
       try {
         const data = simulationFunction();
@@ -426,22 +413,18 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
    * Public API methods for other services to use
    */
 
-  // Public method to subscribe to topics
   async subscribeToTopic(topic: string): Promise<void> {
     return this.subscribe(topic);
   }
 
-  // Public method to unsubscribe from topics
   async unsubscribeFromTopic(topic: string): Promise<void> {
     return this.unsubscribe(topic);
   }
 
-  // Public method to publish messages
   async publishToTopic(topic: string, message: string | object): Promise<void> {
     return this.publish(topic, message);
   }
 
-  // Public method to start device simulation
   startDeviceSimulation(
     deviceId: string,
     topic: string,
@@ -455,10 +438,8 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       return false;
     }
 
-    // Stop any existing simulation for this device
     this.stopDeviceSimulation(deviceId);
 
-    // Default simulation function generates random temperature and humidity
     const defaultSimulationFn = () => ({
       deviceId,
       timestamp: new Date().toISOString(),
@@ -469,7 +450,6 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
 
     const simulationFunction = simulationFn || defaultSimulationFn;
 
-    // Create interval that publishes data regularly
     const simulationInterval = setInterval(async () => {
       try {
         const data = simulationFunction();

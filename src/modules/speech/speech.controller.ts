@@ -80,13 +80,11 @@ export class SpeechController {
     try {
       this.logger.log(`Processing uploaded file: ${file.originalname}`);
 
-      // Process the file buffer directly - no need to save to disk
       const result = await this.speechService.transcribeAudioBuffer(
         file.buffer,
         path.extname(file.originalname).toLowerCase(),
       );
 
-      // Process command if the transcription contains one
       const commandResult = await this.roomService.processVoiceCommand(result);
 
       return {

@@ -22,7 +22,6 @@ export class SensorService {
 
   async createSensor(sensor: Sensor): Promise<Sensor> {
     try {
-      // Check if room exists
       const roomRef = doc(db, 'rooms', sensor.roomId);
       const room = await getDoc(roomRef);
 
@@ -30,15 +29,12 @@ export class SensorService {
         throw new Error(`Room with ID ${sensor.roomId} not found`);
       }
 
-      // Generate sensor topic: room/sensor/type
       const roomData = room.data() as Room;
       sensor.topic = `${roomData.topic}/${sensor.name}/${sensor.type}`;
       sensor.topic = sensor.topic.toLocaleLowerCase();
 
-      // Add sensor to Firebase
       const sensorRef = await addDoc(collection(db, 'sensors'), sensor);
 
-      // Subscribe to sensor topic
       await this.mqttService.subscribeToTopic(sensor.topic);
 
       this.logger.log(
@@ -129,9 +125,7 @@ export class SensorService {
 
       const currentSensorData = currentSensor.data() as Sensor;
 
-      // If we're changing room, name, or type, recalculate the topic
       if (updates.roomId || updates.name || updates.type) {
-        // Unsubscribe from old topic
         await this.mqttService.unsubscribeFromTopic(currentSensorData.topic);
 
         const roomId = updates.roomId || currentSensorData.roomId;
@@ -147,7 +141,6 @@ export class SensorService {
 
         updates.topic = `${roomData.topic}/${sensorName}/${sensorType}`;
 
-        // Subscribe to new topic
         await this.mqttService.subscribeToTopic(updates.topic);
       }
 
@@ -173,12 +166,10 @@ export class SensorService {
         throw new Error(`Sensor with ID ${sensorId} not found`);
       }
 
-      // Unsubscribe from sensor topic
       if (sensor.data().topic) {
         await this.mqttService.unsubscribeFromTopic(sensor.data().topic);
       }
 
-      // Delete the sensor
       await deleteDoc(sensorRef);
 
       return true;

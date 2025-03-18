@@ -14,7 +14,7 @@ export class FirebaseAuthMiddleware implements NestMiddleware {
       throw new UnauthorizedException('Aucun token fourni');
     }
 
-    const idToken = authHeader.split(' ')[1]; // Extraire le token JWT
+    const idToken = authHeader.split(' ')[1];
 
     try {
       const decodedToken = await admin.auth().verifyIdToken(idToken);
@@ -30,16 +30,13 @@ export class FirebaseAuthMiddleware implements NestMiddleware {
       } else {
         throw new UnauthorizedException('UserDoesNotExist');
       }
-      next(); // Passer à la prochaine étape
+      next(); 
     } catch (error) {
       if (error.code === 'auth/id-token-expired') {
-        // Si le token est expiré, renvoyer une erreur spécifique
         throw new UnauthorizedException('TokenExpired');
       } else if (error.code === 'auth/argument-error') {
-        // Si le token est invalide, renvoyer une erreur spécifique
         throw new UnauthorizedException('TokenInvalid');
       } else {
-        // Si une autre erreur survient
         throw new UnauthorizedException('TokenError');
       }
     }

@@ -30,18 +30,15 @@ export class SpeechService {
       this.logger.log(`Processing audio buffer with format: ${fileExtension}`);
 
       if (['.mp3', '.wav', '.flac', '.m4a'].includes(fileExtension)) {
-        // Create a temporary file to use with Groq API
         const tempDir = os.tmpdir();
         const tempFilePath = path.join(
           tempDir,
           `temp-audio-${Date.now()}${fileExtension}`,
         );
 
-        // Write buffer to temporary file
         fs.writeFileSync(tempFilePath, buffer);
 
         try {
-          // Use Groq API for transcription with file path
           const transcription = await this.groq.audio.transcriptions.create({
             file: fs.createReadStream(tempFilePath),
             model: 'whisper-large-v3-turbo',
@@ -53,7 +50,6 @@ export class SpeechService {
           this.logger.log(`Transcription successful`);
           return transcription.text;
         } finally {
-          // Clean up the temporary file
           if (fs.existsSync(tempFilePath)) {
             fs.unlinkSync(tempFilePath);
             this.logger.log(`Deleted temporary file: ${tempFilePath}`);
