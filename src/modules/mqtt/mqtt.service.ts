@@ -39,6 +39,9 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     await this.setupClientEventHandlers();
 
+    // Start the global topic listener for debugging
+    this.startGlobalTopicListener();
+    
     // Wait a moment for the connection to establish before starting simulations
     setTimeout(async () => {
       try {
@@ -183,6 +186,53 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
         }
       });
     });
+  }
+  
+  /**
+   * Start global topic listener for debugging purposes
+   * This subscribes to all topics and logs messages with appropriate emojis
+   */
+  startGlobalTopicListener() {
+    this.logger.log('🔍 Starting global MQTT topic listener for debugging');
+    
+    return this.subscribe('#')
+      .then(() => {
+        this.messageEventEmitter.on('message', ({ topic, message }) => {
+          try {
+            // Parse message if it's JSON
+            let data;
+            try {
+              data = JSON.parse(message);
+            } catch {
+              data = message;
+            }
+            
+            // Determine the type of sensor/device from topic or message content
+            if (topic.includes('light') || (data && data.type === 'light')) {
+              this.logger.debug(`💡 LIGHT [${topic}]: ${message}`);
+            } 
+            else if (topic.includes('temperature') || (data && 'temperature' in data) || (data && data.type === 'temperature')) {
+              this.logger.debug(`🌡️ TEMPERATURE [${topic}]: ${message}`);
+            }
+            else if (topic.includes('humidity') || (data && 'humidity' in data) || (data && data.type === 'humidity')) {
+              this.logger.debug(`💧 HUMIDITY [${topic}]: ${message}`);
+            }
+            else if (topic.includes('radiator') || (data && data.type === 'radiator')) {
+              this.logger.debug(`🔥 RADIATOR [${topic}]: ${message}`);
+            }
+            else {
+              this.logger.debug(`📊 OTHER [${topic}]: ${message}`);
+            }
+          } catch (error) {
+            this.logger.error(`Error processing MQTT message: ${error.message}`);
+          }
+        });
+        
+        this.logger.log('🎯 Global MQTT topic listener active');
+      })
+      .catch(error => {
+        this.logger.error(`Failed to start global topic listener: ${error.message}`);
+      });
   }
 
   /**
