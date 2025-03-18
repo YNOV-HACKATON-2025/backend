@@ -4,6 +4,7 @@ export interface Sensor {
   roomId: string;
   type: string;
   topic?: string;
+  value?: string;
 }
 
 export interface Room {
