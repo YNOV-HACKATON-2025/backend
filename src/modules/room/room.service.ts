@@ -63,9 +63,7 @@ export class RoomService {
 
   private deviceTypes = {
     light: ['lumière', 'lampe', 'éclairage', 'led', 'ampoule'],
-    radiator: ['radiateur', 'chauffage'],
-    temperature: ['température', 'chauffage', 'climatisation', 'thermostat'],
-    humidity: ['humidité', 'humidificateur'],
+    radiator: ['radiateur', 'chauffage', 'climatisation', 'thermostat'],
     blind: ['store', 'volet', 'rideau', 'persienne'],
     fan: ['ventilateur', 'ventilo'],
     outlet: ['prise'],
