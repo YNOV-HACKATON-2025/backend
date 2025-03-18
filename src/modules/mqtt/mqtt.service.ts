@@ -26,6 +26,9 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   private simulationIntervals: Map<string, NodeJS.Timeout> = new Map();
   private isConnected = false;
   private sensorCheckInterval: NodeJS.Timeout;
+  private timeRemainingInterval: NodeJS.Timeout;
+  private lastCheckTime: number;
+  private checkIntervalMs: number = 600000; // 10 minutes in ms
 
   constructor() {
     this.client = connect(process.env.MQTT_BROKER_URL, {
@@ -45,13 +48,23 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       try {
         await this.startSimulationsForSensorTypes(['temperature', 'humidity']);
 
+        this.lastCheckTime = Date.now();
         this.sensorCheckInterval = setInterval(async () => {
           this.logger.log('Performing periodic check for new sensors...');
           await this.startSimulationsForSensorTypes([
             'temperature',
             'humidity',
           ]);
-        }, 20000);
+          this.lastCheckTime = Date.now();
+        }, this.checkIntervalMs);
+        
+        this.timeRemainingInterval = setInterval(() => {
+          const elapsedTime = Date.now() - this.lastCheckTime;
+          const remainingTime = Math.max(0, this.checkIntervalMs - elapsedTime);
+          const remainingMinutes = Math.floor(remainingTime / 60000);
+          const remainingSeconds = Math.floor((remainingTime % 60000) / 1000);
+          this.logger.log(`Time remaining before next sensor check: ${remainingMinutes} minutes and ${remainingSeconds} seconds`);
+        }, 60000);
       } catch (error) {
         this.logger.error(
           `Failed to start sensor simulations on init: ${error.message}`,
@@ -63,6 +76,9 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   onModuleDestroy() {
     if (this.sensorCheckInterval) {
       clearInterval(this.sensorCheckInterval);
+    }
+    if (this.timeRemainingInterval) {
+      clearInterval(this.timeRemainingInterval);
     }
     this.stopAllSimulations();
     this.client.end();
