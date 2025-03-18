@@ -32,7 +32,7 @@ export class SensorService {
 
       // Generate sensor topic: room/sensor/type
       const roomData = room.data() as Room;
-      sensor.topic = `(${roomData.topic}/${sensor.name}/${sensor.type}`;
+      sensor.topic = `${roomData.topic}/${sensor.name}/${sensor.type}`;
       sensor.topic = sensor.topic.toLocaleLowerCase();
 
       // Add sensor to Firebase
