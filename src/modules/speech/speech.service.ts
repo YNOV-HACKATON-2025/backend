@@ -4,6 +4,8 @@ import * as path from 'path';
 import * as os from 'os';
 import Groq from 'groq-sdk';
 import 'dotenv/config';
+import { db } from '../../main';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 @Injectable()
 export class SpeechService {
@@ -14,6 +16,26 @@ export class SpeechService {
     this.groq = new Groq({
       apiKey: process.env.GROQ_API_KEY,
     });
+  }
+
+  /**
+   * Store a transcribed voice command in Firestore
+   * @param transcription The transcribed text from audio
+   * @returns Promise with the document ID of the stored transcription
+   */
+  private async storeVoiceCommand(transcription: string): Promise<string> {
+    try {
+      const docRef = await addDoc(collection(db, 'voiceCommands'), {
+        text: transcription,
+        timestamp: serverTimestamp(),
+      });
+      
+      this.logger.log(`Voice command stored with ID: ${docRef.id}`);
+      return docRef.id;
+    } catch (error) {
+      this.logger.error(`Failed to store voice command: ${error.message}`);
+      throw new Error(`Failed to store voice command: ${error.message}`);
+    }
   }
 
   /**
@@ -48,6 +70,10 @@ export class SpeechService {
           });
 
           this.logger.log(`Transcription successful`);
+          
+          // Store the voice command in Firebase
+          await this.storeVoiceCommand(transcription.text);
+          
           return transcription.text;
         } finally {
           if (fs.existsSync(tempFilePath)) {
