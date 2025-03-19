@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
-  collection,
   addDoc,
-  updateDoc,
+  collection,
   deleteDoc,
   doc,
-  getDocs,
   getDoc,
+  getDocs,
   query,
+  updateDoc,
   where,
 } from 'firebase/firestore';
 import { db } from '../../main';
@@ -30,8 +30,12 @@ export class SensorService {
       }
 
       const roomData = room.data() as Room;
-      sensor.topic = `${roomData.topic}/${sensor.name}/${sensor.type}`;
-      sensor.topic = sensor.topic.toLocaleLowerCase();
+
+      sensor.topic = `${roomData.topic}/${sensor.name}/${sensor.type}`
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '')
+        .toLowerCase();
 
       const sensorRef = await addDoc(collection(db, 'sensors'), sensor);
 
@@ -138,8 +142,11 @@ export class SensorService {
         const roomData = roomDoc.data() as Room;
         const sensorName = updates.name || currentSensorData.name;
         const sensorType = updates.type || currentSensorData.type;
-
-        updates.topic = `${roomData.topic}/${sensorName}/${sensorType}`;
+        updates.topic = `${roomData.topic}/${sensorName}/${sensorType}`
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, '')
+          .toLowerCase();
 
         await this.mqttService.subscribeToTopic(updates.topic);
       }

@@ -1,0 +1,21 @@
+# Ignorer les dépendances locales et les fichiers de build
+node_modules
+dist
+build
+.cache
+
+# Ignorer les fichiers de configuration sensibles et inutiles
+*.env.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Ignorer les fichiers système
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+*.swp
